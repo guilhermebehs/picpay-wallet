@@ -5,7 +5,7 @@ import {
   UnprocessableEntityException,
 } from '@nestjs/common';
 import { AccountRepository, HistoryRepository } from 'src/contracts';
-import { CashDepositDto, HistoryDto } from 'src/dtos';
+import { HistoryDto } from 'src/dtos';
 import { CashWithdrawDto } from 'src/dtos/cash-withdraw.dto';
 import { HistoryType } from 'src/enums/history-type.enum';
 
