@@ -7,19 +7,19 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { AccountRepository, HistoryRepository } from 'src/contracts';
 import { AccountDto, CashDepositDto } from 'src/dtos';
 import { HistoryType } from 'src/enums/history-type.enum';
-import { CashDepositService } from 'src/services/cash-deposit.service';
+import { CashWithdrawService } from 'src/services/cash-withdraw.service';
 import { accountRepositoryMock, historyRepositoryMock } from 'test/mocks';
 
-describe('CashDepositService', () => {
+describe('CashWithdrawService', () => {
   let app: INestApplication;
   let accountRepository;
   let historyRepository;
-  let cashDepositService: CashDepositService;
+  let cashWithdrawService: CashWithdrawService;
 
   beforeEach(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
       providers: [
-        CashDepositService,
+        CashWithdrawService,
         { provide: 'AccountRepository', useValue: accountRepositoryMock },
         { provide: 'HistoryRepository', useValue: historyRepositoryMock },
       ],
@@ -28,19 +28,19 @@ describe('CashDepositService', () => {
     app = moduleFixture.createNestApplication();
     await app.init();
 
-    cashDepositService = app.get<CashDepositService>(CashDepositService);
+    cashWithdrawService = app.get<CashWithdrawService>(CashWithdrawService);
     accountRepository = app.get<AccountRepository>('AccountRepository');
     historyRepository = app.get<HistoryRepository>('HistoryRepository');
   });
 
   describe('invoke()', () => {
-    it('should deposit cash successfully', async () => {
+    it('should withdraw cash successfully', async () => {
       const getByAccountSpy = jest.spyOn(accountRepository, 'getByAccount');
       const updateSpy = jest.spyOn(accountRepository, 'update');
       const insertSpy = jest.spyOn(historyRepository, 'insert');
 
-      const promise = cashDepositService.invoke(
-        new CashDepositDto('some id', 5),
+      const promise = cashWithdrawService.invoke(
+        new CashDepositDto('some id', 2),
       );
 
       await expect(promise).resolves.toBeUndefined();
@@ -49,15 +49,15 @@ describe('CashDepositService', () => {
       expect(updateSpy).toBeCalledTimes(1);
       expect(updateSpy).toBeCalledWith({
         id: 'some id',
-        amount: 15,
+        amount: 8,
         isEnabled: true,
       });
       expect(insertSpy).toBeCalledTimes(1);
       expect(insertSpy).toBeCalledWith({
         account: 'some id',
         oldAmount: 10,
-        newAmount: 15,
-        type: HistoryType.DEPOSIT,
+        newAmount: 8,
+        type: HistoryType.WITHDRAW,
       });
     });
     it('should throw when account does not exist', async () => {
@@ -68,8 +68,8 @@ describe('CashDepositService', () => {
       const updateSpy = jest.spyOn(accountRepository, 'update');
       const insertSpy = jest.spyOn(historyRepository, 'insert');
 
-      const promise = cashDepositService.invoke(
-        new CashDepositDto('some id', 5),
+      const promise = cashWithdrawService.invoke(
+        new CashDepositDto('some id', 2),
       );
 
       await expect(promise).rejects.toEqual(
@@ -87,12 +87,28 @@ describe('CashDepositService', () => {
       const updateSpy = jest.spyOn(accountRepository, 'update');
       const insertSpy = jest.spyOn(historyRepository, 'insert');
 
-      const promise = cashDepositService.invoke(
-        new CashDepositDto('some id', 5),
+      const promise = cashWithdrawService.invoke(
+        new CashDepositDto('some id', 2),
       );
 
       await expect(promise).rejects.toEqual(
         new UnprocessableEntityException('Account is not enabled'),
+      );
+      expect(getByAccountSpy).toBeCalledTimes(1);
+      expect(updateSpy).toBeCalledTimes(0);
+      expect(insertSpy).toBeCalledTimes(0);
+    });
+    it('should throw when retrived account does not have enough money', async () => {
+      const getByAccountSpy = jest.spyOn(accountRepository, 'getByAccount');
+      const updateSpy = jest.spyOn(accountRepository, 'update');
+      const insertSpy = jest.spyOn(historyRepository, 'insert');
+
+      const promise = cashWithdrawService.invoke(
+        new CashDepositDto('some id', 20),
+      );
+
+      await expect(promise).rejects.toEqual(
+        new UnprocessableEntityException('Account does not have enough money'),
       );
       expect(getByAccountSpy).toBeCalledTimes(1);
       expect(updateSpy).toBeCalledTimes(0);
