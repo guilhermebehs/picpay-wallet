@@ -1,6 +1,6 @@
 import { INestApplication } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
-import { AccountDto, CreateAccountDto } from 'src/dtos';
+import { CreateAccountDto } from 'src/dtos';
 import { AccountEntity } from 'src/infra/db/entities/account.entity';
 import { SqlAccountRepository } from 'src/infra/db/repositories/sql-account-repository';
 
@@ -21,7 +21,7 @@ describe('SqlAccountRepository', () => {
         SqlAccountRepository,
         {
           provide: 'AccountEntityRepository',
-          useValue: { findOneBy: () => account, insert: jest.fn() },
+          useValue: { findOneBy: () => account, save: jest.fn() },
         },
       ],
     }).compile();
@@ -57,12 +57,12 @@ describe('SqlAccountRepository', () => {
 
   describe('create()', () => {
     it('should execute successfully', async () => {
-      const insertSpy = jest.spyOn(repository, 'insert');
+      const saveSpy = jest.spyOn(repository, 'save');
       const promise = sqlAccountRepository.create(
         new CreateAccountDto('some id', 'some name'),
       );
       await expect(promise).resolves.toBeUndefined();
-      expect(insertSpy).toHaveBeenNthCalledWith(1, {
+      expect(saveSpy).toHaveBeenNthCalledWith(1, {
         id: 'some id',
         name: 'some name',
         amount: 0,
@@ -73,10 +73,10 @@ describe('SqlAccountRepository', () => {
 
   describe('update()', () => {
     it('should execute successfully', async () => {
-      const insertSpy = jest.spyOn(repository, 'insert');
+      const saveSpy = jest.spyOn(repository, 'save');
       const promise = sqlAccountRepository.update(account);
       await expect(promise).resolves.toBeUndefined();
-      expect(insertSpy).toHaveBeenNthCalledWith(1, {
+      expect(saveSpy).toHaveBeenNthCalledWith(1, {
         id: 'some id',
         name: 'some name',
         amount: 10,

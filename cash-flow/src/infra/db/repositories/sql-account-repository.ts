@@ -23,10 +23,10 @@ export class SqlAccountRepository implements AccountRepository {
   async create(data: CreateAccountDto): Promise<void> {
     const { accountId: id, name } = data;
     const entity: AccountEntity = { id, name, amount: 0, isEnabled: true };
-    await this.accountRepository.insert(entity);
+    await this.accountRepository.save(entity);
   }
 
   async update(data: AccountDto): Promise<void> {
-    await this.accountRepository.insert(data);
+    await this.accountRepository.save(data);
   }
 }

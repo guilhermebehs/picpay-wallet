@@ -3,8 +3,15 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { AccountEntity } from './infra/db/entities/account.entity';
 import { config } from 'dotenv';
 import { SqlAccountRepository } from './infra/db/repositories/sql-account-repository';
+import { HistoryEntity } from './infra/db/entities/history.entity';
+import { SqlHistoryRepository } from './infra/db/repositories/sql-history-repository';
 
 config();
+
+const providersList = [
+  { provide: 'AccountRepository', useClass: SqlAccountRepository },
+  { provide: 'HistoryRepository', useClass: SqlHistoryRepository },
+];
 
 @Module({
   imports: [
@@ -18,9 +25,9 @@ config();
       synchronize: false,
       autoLoadEntities: true,
     }),
-    TypeOrmModule.forFeature([AccountEntity]),
+    TypeOrmModule.forFeature([AccountEntity, HistoryEntity]),
   ],
-  providers: [{ provide: 'AccountRepository', useClass: SqlAccountRepository }],
-  exports: [{ provide: 'AccountRepository', useClass: SqlAccountRepository }],
+  providers: providersList,
+  exports: providersList,
 })
 export class DbModule {}
