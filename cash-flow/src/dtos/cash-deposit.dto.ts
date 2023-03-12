@@ -1,5 +1,13 @@
+import { IsNotEmpty, Length, Max, Min } from 'class-validator';
+
 export class CashDepositDto {
+  @IsNotEmpty()
+  @Length(5, 10)
   accountId: string;
+
+  @IsNotEmpty()
+  @Min(1)
+  @Max(1000)
   amount: number;
 
   constructor(accountId: string, amount: number) {

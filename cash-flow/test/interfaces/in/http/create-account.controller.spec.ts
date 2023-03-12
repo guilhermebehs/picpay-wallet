@@ -1,4 +1,4 @@
-import { INestApplication, ValidationPipe } from '@nestjs/common';
+import { INestApplication } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { CreateAccountDto } from 'src/dtos';
 import { CreateAccountController } from 'src/interfaces/in/http/create-account.controller';

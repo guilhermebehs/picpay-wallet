@@ -1,0 +1,38 @@
+import { INestApplication } from '@nestjs/common';
+import { Test, TestingModule } from '@nestjs/testing';
+import { CashDepositDto } from 'src/dtos';
+import { CashDepositController } from 'src/interfaces/in/http/cash-deposit.controller';
+import { CashDepositService } from 'src/services/cash-deposit.service';
+
+describe('CashDepositController', () => {
+  let app: INestApplication;
+  let cashDepositController: CashDepositController;
+  let cashDepositService: CashDepositService;
+
+  beforeEach(async () => {
+    const moduleFixture: TestingModule = await Test.createTestingModule({
+      controllers: [CashDepositController],
+      providers: [
+        { provide: CashDepositService, useValue: { invoke: jest.fn() } },
+      ],
+    }).compile();
+
+    app = moduleFixture.createNestApplication();
+    await app.init();
+
+    cashDepositController = app.get<CashDepositController>(
+      CashDepositController,
+    );
+    cashDepositService = app.get<CashDepositService>(CashDepositService);
+  });
+
+  describe('invoke()', () => {
+    it('should process successfully', async () => {
+      const invokeSpy = jest.spyOn(cashDepositService, 'invoke');
+      const payload = new CashDepositDto('12345', 10);
+      const promise = cashDepositController.invoke(payload);
+      await expect(promise).resolves.toBeUndefined();
+      expect(invokeSpy).toHaveBeenNthCalledWith(1, payload);
+    });
+  });
+});

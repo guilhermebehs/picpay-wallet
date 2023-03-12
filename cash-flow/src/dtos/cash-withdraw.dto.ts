@@ -1,12 +1,13 @@
-import { IsNotEmpty, IsNumber, IsPositive } from 'class-validator';
+import { IsNotEmpty, Length, Max, Min } from 'class-validator';
 
 export class CashWithdrawDto {
   @IsNotEmpty()
+  @Length(5, 10)
   accountId: string;
 
   @IsNotEmpty()
-  @IsNumber()
-  @IsPositive()
+  @Min(1)
+  @Max(1000)
   amount: number;
 
   constructor(accountId: string, amount: number) {
