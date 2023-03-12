@@ -5,7 +5,7 @@ import {
 } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { AccountRepository, HistoryRepository } from 'src/contracts';
-import { AccountDto, CashDepositDto } from 'src/dtos';
+import { AccountDto, CashWithdrawDto } from 'src/dtos';
 import { HistoryType } from 'src/enums/history-type.enum';
 import { CashWithdrawService } from 'src/services/cash-withdraw.service';
 import { accountRepositoryMock, historyRepositoryMock } from 'test/mocks';
@@ -40,20 +40,18 @@ describe('CashWithdrawService', () => {
       const insertSpy = jest.spyOn(historyRepository, 'insert');
 
       const promise = cashWithdrawService.invoke(
-        new CashDepositDto('some id', 2),
+        new CashWithdrawDto('some id', 2),
       );
 
       await expect(promise).resolves.toBeUndefined();
-      expect(getByAccountSpy).toBeCalledTimes(1);
-      expect(getByAccountSpy).toBeCalledWith('some id');
-      expect(updateSpy).toBeCalledTimes(1);
-      expect(updateSpy).toBeCalledWith({
+      expect(getByAccountSpy).toHaveBeenNthCalledWith(1, 'some id');
+      expect(updateSpy).toHaveBeenNthCalledWith(1, {
         id: 'some id',
         amount: 8,
+        name: 'some name',
         isEnabled: true,
       });
-      expect(insertSpy).toBeCalledTimes(1);
-      expect(insertSpy).toBeCalledWith({
+      expect(insertSpy).toHaveBeenNthCalledWith(1, {
         account: 'some id',
         oldAmount: 10,
         newAmount: 8,
@@ -69,7 +67,7 @@ describe('CashWithdrawService', () => {
       const insertSpy = jest.spyOn(historyRepository, 'insert');
 
       const promise = cashWithdrawService.invoke(
-        new CashDepositDto('some id', 2),
+        new CashWithdrawDto('some id', 2),
       );
 
       await expect(promise).rejects.toEqual(
@@ -82,13 +80,15 @@ describe('CashWithdrawService', () => {
     it('should throw when retrived account is not enabled', async () => {
       const getByAccountSpy = jest
         .spyOn(accountRepository, 'getByAccount')
-        .mockResolvedValueOnce(new AccountDto('some id', 10, false));
+        .mockResolvedValueOnce(
+          new AccountDto('some id', 'some name', 10, false),
+        );
 
       const updateSpy = jest.spyOn(accountRepository, 'update');
       const insertSpy = jest.spyOn(historyRepository, 'insert');
 
       const promise = cashWithdrawService.invoke(
-        new CashDepositDto('some id', 2),
+        new CashWithdrawDto('some id', 2),
       );
 
       await expect(promise).rejects.toEqual(
@@ -104,7 +104,7 @@ describe('CashWithdrawService', () => {
       const insertSpy = jest.spyOn(historyRepository, 'insert');
 
       const promise = cashWithdrawService.invoke(
-        new CashDepositDto('some id', 20),
+        new CashWithdrawDto('some id', 20),
       );
 
       await expect(promise).rejects.toEqual(

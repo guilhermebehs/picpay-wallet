@@ -1,7 +1,9 @@
 import { Module } from '@nestjs/common';
+import { CreateAccountModule } from './create-account.module';
+import { InfraModule } from './infra.module';
 
 @Module({
-  imports: [],
+  imports: [CreateAccountModule, InfraModule],
   controllers: [],
   providers: [],
 })

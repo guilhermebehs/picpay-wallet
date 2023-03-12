@@ -44,16 +44,14 @@ describe('CashDepositService', () => {
       );
 
       await expect(promise).resolves.toBeUndefined();
-      expect(getByAccountSpy).toBeCalledTimes(1);
-      expect(getByAccountSpy).toBeCalledWith('some id');
-      expect(updateSpy).toBeCalledTimes(1);
-      expect(updateSpy).toBeCalledWith({
+      expect(getByAccountSpy).toHaveBeenNthCalledWith(1, 'some id');
+      expect(updateSpy).toHaveBeenNthCalledWith(1, {
         id: 'some id',
+        name: 'some name',
         amount: 15,
         isEnabled: true,
       });
-      expect(insertSpy).toBeCalledTimes(1);
-      expect(insertSpy).toBeCalledWith({
+      expect(insertSpy).toHaveBeenNthCalledWith(1, {
         account: 'some id',
         oldAmount: 10,
         newAmount: 15,
@@ -82,7 +80,9 @@ describe('CashDepositService', () => {
     it('should throw when retrived account is not enabled', async () => {
       const getByAccountSpy = jest
         .spyOn(accountRepository, 'getByAccount')
-        .mockResolvedValueOnce(new AccountDto('some id', 10, false));
+        .mockResolvedValueOnce(
+          new AccountDto('some id', 'some name', 10, false),
+        );
 
       const updateSpy = jest.spyOn(accountRepository, 'update');
       const insertSpy = jest.spyOn(historyRepository, 'insert');
