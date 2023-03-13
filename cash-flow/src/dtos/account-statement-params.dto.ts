@@ -36,9 +36,9 @@ export class AccountStatementParamsDto {
     account: string,
     startDate: Date,
     endDate: Date,
-    limit = 20,
-    sort = SortType.DESC,
-    offset = 0,
+    limit: number,
+    sort: SortType,
+    offset: number,
   ) {
     this.account = account;
     this.startDate = startDate;

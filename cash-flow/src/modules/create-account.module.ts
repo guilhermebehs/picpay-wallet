@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
+import { CreateAccountController } from 'src/interfaces/in/http/create-account.controller';
+import { CreateAccountService } from 'src/services/create-account.service';
 import { InfraModule } from './infra.module';
-import { CreateAccountController } from './interfaces/in/http/create-account.controller';
-import { CreateAccountService } from './services/create-account.service';
 
 @Module({
   imports: [InfraModule],

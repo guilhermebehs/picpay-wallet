@@ -1,16 +1,20 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { AccountEntity } from './infra/db/entities/account.entity';
 import { config } from 'dotenv';
-import { SqlAccountRepository } from './infra/db/repositories/sql-account-repository';
-import { HistoryEntity } from './infra/db/entities/history.entity';
-import { SqlHistoryRepository } from './infra/db/repositories/sql-history-repository';
-import { AccountStatementEntity } from 'src/infra/db/entities/account-statement.entity';
+import { AccountEntity } from 'src/infra/db/entities/account.entity';
+import { HistoryEntity } from 'src/infra/db/entities/history.entity';
+import { SqlAccountRepository } from 'src/infra/db/repositories/sql-account-repository';
+import { SqlAccountStatementRepository } from 'src/infra/db/repositories/sql-account-statement-repository';
+import { SqlHistoryRepository } from 'src/infra/db/repositories/sql-history-repository';
 
 config();
 
 const providersList = [
   { provide: 'AccountRepository', useClass: SqlAccountRepository },
+  {
+    provide: 'AccountStatementRepository',
+    useClass: SqlAccountStatementRepository,
+  },
   { provide: 'HistoryRepository', useClass: SqlHistoryRepository },
 ];
 
@@ -26,11 +30,7 @@ const providersList = [
       synchronize: false,
       autoLoadEntities: true,
     }),
-    TypeOrmModule.forFeature([
-      AccountEntity,
-      HistoryEntity,
-      AccountStatementEntity,
-    ]),
+    TypeOrmModule.forFeature([AccountEntity, HistoryEntity]),
   ],
   providers: providersList,
   exports: providersList,

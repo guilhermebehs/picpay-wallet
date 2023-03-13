@@ -19,5 +19,5 @@ export class HistoryEntity {
   type: HistoryType;
 
   @Column({ default: 'now()' })
-  date?: string;
+  date?: Date;
 }

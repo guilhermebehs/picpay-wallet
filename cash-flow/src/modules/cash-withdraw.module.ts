@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
+import { CashWithdrawController } from 'src/interfaces/in/http/cash-withdraw.controller';
+import { CashWithdrawService } from 'src/services/cash-withdraw.service';
 import { InfraModule } from './infra.module';
-import { CashWithdrawController } from './interfaces/in/http/cash-withdraw.controller';
-import { CashWithdrawService } from './services/cash-withdraw.service';
 
 @Module({
   imports: [InfraModule],
