@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { AccountStatementModule } from './account-statement.module';
+import { BalanceModule } from './balance.module';
 import { CashDepositModule } from './cash-deposit.module';
 import { CashWithdrawModule } from './cash-withdraw.module';
 import { CreateAccountModule } from './create-account.module';
@@ -14,6 +15,7 @@ import { MessagingModule } from './messaging.module';
     InfraModule,
     AccountStatementModule,
     MessagingModule,
+    BalanceModule,
   ],
   controllers: [],
   providers: [],
