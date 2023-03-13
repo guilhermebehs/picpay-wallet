@@ -4,6 +4,7 @@ import { CashDepositModule } from './cash-deposit.module';
 import { CashWithdrawModule } from './cash-withdraw.module';
 import { CreateAccountModule } from './create-account.module';
 import { InfraModule } from './infra.module';
+import { MessagingModule } from './messaging.module';
 
 @Module({
   imports: [
@@ -12,6 +13,7 @@ import { InfraModule } from './infra.module';
     CashWithdrawModule,
     InfraModule,
     AccountStatementModule,
+    MessagingModule,
   ],
   controllers: [],
   providers: [],

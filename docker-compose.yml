@@ -11,3 +11,11 @@ services:
       MYSQL_ROOT_PASSWORD: 150158
       MYSQL_DATABASE: picpay-wallet
       MYSQL_USER: picpay
+  rabbitmq:
+    container_name: rabbitmq
+    image: rabbitmq:3.8-management-alpine
+    hostname: rabbitmq
+    restart: always
+    ports:
+      - 15672:15672
+      - 5672:5672    
