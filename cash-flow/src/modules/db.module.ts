@@ -5,6 +5,7 @@ import { config } from 'dotenv';
 import { SqlAccountRepository } from './infra/db/repositories/sql-account-repository';
 import { HistoryEntity } from './infra/db/entities/history.entity';
 import { SqlHistoryRepository } from './infra/db/repositories/sql-history-repository';
+import { AccountStatementEntity } from 'src/infra/db/entities/account-statement.entity';
 
 config();
 
@@ -25,7 +26,11 @@ const providersList = [
       synchronize: false,
       autoLoadEntities: true,
     }),
-    TypeOrmModule.forFeature([AccountEntity, HistoryEntity]),
+    TypeOrmModule.forFeature([
+      AccountEntity,
+      HistoryEntity,
+      AccountStatementEntity,
+    ]),
   ],
   providers: providersList,
   exports: providersList,

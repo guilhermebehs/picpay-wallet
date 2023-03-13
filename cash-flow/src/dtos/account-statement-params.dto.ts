@@ -1,0 +1,50 @@
+import {
+  IsEnum,
+  IsNotEmpty,
+  IsOptional,
+  Length,
+  Max,
+  Min,
+} from 'class-validator';
+import { SortType } from 'src/enums/sort-type.enum';
+
+export class AccountStatementParamsDto {
+  @IsNotEmpty()
+  @Length(5, 10)
+  account: string;
+
+  @IsNotEmpty()
+  startDate: Date;
+
+  @IsNotEmpty()
+  endDate: Date;
+
+  @IsOptional()
+  @Min(1)
+  @Max(20)
+  limit: number;
+
+  @IsOptional()
+  @IsEnum(SortType)
+  sort: SortType;
+
+  @IsOptional()
+  @Min(0)
+  offset: number;
+
+  constructor(
+    account: string,
+    startDate: Date,
+    endDate: Date,
+    limit = 20,
+    sort = SortType.DESC,
+    offset = 0,
+  ) {
+    this.account = account;
+    this.startDate = startDate;
+    this.endDate = endDate;
+    this.limit = limit;
+    this.sort = sort;
+    this.offset = offset;
+  }
+}
