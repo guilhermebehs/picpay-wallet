@@ -5,4 +5,9 @@ export class BalanceDto {
     description: 'account current amount',
   })
   amount: number;
+
+  @ApiProperty({
+    description: 'account current status',
+  })
+  isEnabled: boolean;
 }
