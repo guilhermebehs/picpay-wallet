@@ -1,5 +1,6 @@
 import { DataSource } from 'typeorm';
 import { config } from 'dotenv';
+import { createTableTransaction1678814984624 } from './migrations/1678814984624-create-table-transaction';
 
 config();
 
@@ -10,5 +11,5 @@ export default new DataSource({
   username: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME,
-  migrations: [],
+  migrations: [createTableTransaction1678814984624],
 });
