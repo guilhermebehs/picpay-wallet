@@ -4,7 +4,11 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { TransactionReceivedDto } from 'src/dtos/transaction-received.dto';
 import { HistoryType } from 'src/enums/history-type.enum';
 import { RabbitMqTransactionReceivedListener } from 'src/interfaces/in/messaging/rabbitmq-transaction-received.listener';
-import { accountRepositoryMock, historyRepositoryMock } from 'test/mocks';
+import {
+  accountRepositoryMock,
+  historyRepositoryMock,
+  loggerMock,
+} from 'test/mocks';
 
 describe('RabbitMqTransactionReceivedListener', () => {
   let app: INestApplication;
@@ -12,6 +16,7 @@ describe('RabbitMqTransactionReceivedListener', () => {
   let accountRepository;
   let historyRepository;
   let amqpConnection;
+  let logger;
 
   beforeEach(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
@@ -20,6 +25,10 @@ describe('RabbitMqTransactionReceivedListener', () => {
         { provide: 'AccountRepository', useValue: accountRepositoryMock },
         { provide: 'HistoryRepository', useValue: historyRepositoryMock },
         { provide: AmqpConnection, useValue: { publish: jest.fn() } },
+        {
+          provide: 'Logger',
+          useValue: loggerMock,
+        },
       ],
     }).compile();
 
@@ -35,10 +44,13 @@ describe('RabbitMqTransactionReceivedListener', () => {
     accountRepository = app.get('AccountRepository');
     historyRepository = app.get('HistoryRepository');
     amqpConnection = app.get(AmqpConnection);
+    logger = app.get('Logger');
   });
   describe('listen()', () => {
     it('should handle transaction with type "purchase" successfully', async () => {
       const getByAccountSpy = jest.spyOn(accountRepository, 'getByAccount');
+      const printSpy = jest.spyOn(logger, 'print');
+      const errorSpy = jest.spyOn(logger, 'error');
       const updateSpy = jest.spyOn(accountRepository, 'update');
       const insertSpy = jest.spyOn(historyRepository, 'insert');
       const publishSpy = jest.spyOn(amqpConnection, 'publish');
@@ -65,9 +77,17 @@ describe('RabbitMqTransactionReceivedListener', () => {
         isEnabled: true,
       });
       expect(publishSpy).toHaveBeenCalledTimes(0);
+      expect(errorSpy).toHaveBeenCalledTimes(0);
+      expect(printSpy).toHaveBeenNthCalledWith(
+        1,
+        `event "transaction-received"`,
+        JSON.stringify(payload),
+      );
     });
     it('should handle transaction with type "cancellation" successfully', async () => {
       const getByAccountSpy = jest.spyOn(accountRepository, 'getByAccount');
+      const printSpy = jest.spyOn(logger, 'print');
+      const errorSpy = jest.spyOn(logger, 'error');
       const updateSpy = jest.spyOn(accountRepository, 'update');
       const insertSpy = jest.spyOn(historyRepository, 'insert');
       const publishSpy = jest.spyOn(amqpConnection, 'publish');
@@ -94,10 +114,18 @@ describe('RabbitMqTransactionReceivedListener', () => {
         isEnabled: true,
       });
       expect(publishSpy).toHaveBeenCalledTimes(0);
+      expect(errorSpy).toHaveBeenCalledTimes(0);
+      expect(printSpy).toHaveBeenNthCalledWith(
+        1,
+        `event "transaction-received"`,
+        JSON.stringify(payload),
+      );
     });
 
     it('should handle transaction with type "reversal" successfully', async () => {
       const getByAccountSpy = jest.spyOn(accountRepository, 'getByAccount');
+      const printSpy = jest.spyOn(logger, 'print');
+      const errorSpy = jest.spyOn(logger, 'error');
       const updateSpy = jest.spyOn(accountRepository, 'update');
       const insertSpy = jest.spyOn(historyRepository, 'insert');
       const publishSpy = jest.spyOn(amqpConnection, 'publish');
@@ -124,6 +152,12 @@ describe('RabbitMqTransactionReceivedListener', () => {
         isEnabled: true,
       });
       expect(publishSpy).toHaveBeenCalledTimes(0);
+      expect(errorSpy).toHaveBeenCalledTimes(0);
+      expect(printSpy).toHaveBeenNthCalledWith(
+        1,
+        `event "transaction-received"`,
+        JSON.stringify(payload),
+      );
     });
 
     it('should throw when account does not exist', async () => {
@@ -131,6 +165,8 @@ describe('RabbitMqTransactionReceivedListener', () => {
         .spyOn(accountRepository, 'getByAccount')
         .mockResolvedValueOnce(null);
       const updateSpy = jest.spyOn(accountRepository, 'update');
+      const printSpy = jest.spyOn(logger, 'print');
+      const errorSpy = jest.spyOn(logger, 'error');
       const insertSpy = jest.spyOn(historyRepository, 'insert');
       const publishSpy = jest.spyOn(amqpConnection, 'publish');
 
@@ -158,6 +194,16 @@ describe('RabbitMqTransactionReceivedListener', () => {
         '',
         error,
       );
+      expect(errorSpy).toHaveBeenNthCalledWith(
+        1,
+        `event "transaction-received"`,
+        error.message,
+      );
+      expect(printSpy).toHaveBeenNthCalledWith(
+        1,
+        `event "transaction-received"`,
+        JSON.stringify(payload),
+      );
     });
 
     const mandatoryProperties = ['account', 'amount', 'type', 'ocurredOn'];
@@ -165,6 +211,8 @@ describe('RabbitMqTransactionReceivedListener', () => {
     for (const property of mandatoryProperties) {
       it(`should throw when payload has no ${property}`, async () => {
         const getByAccountSpy = jest.spyOn(accountRepository, 'getByAccount');
+        const printSpy = jest.spyOn(logger, 'print');
+        const errorSpy = jest.spyOn(logger, 'error');
         const updateSpy = jest.spyOn(accountRepository, 'update');
         const insertSpy = jest.spyOn(historyRepository, 'insert');
         const publishSpy = jest.spyOn(amqpConnection, 'publish');
@@ -194,6 +242,16 @@ describe('RabbitMqTransactionReceivedListener', () => {
           'transaction-received-dl',
           '',
           error,
+        );
+        expect(errorSpy).toHaveBeenNthCalledWith(
+          1,
+          `event "transaction-received"`,
+          error.message,
+        );
+        expect(printSpy).toHaveBeenNthCalledWith(
+          1,
+          `event "transaction-received"`,
+          JSON.stringify(payload),
         );
       });
     }

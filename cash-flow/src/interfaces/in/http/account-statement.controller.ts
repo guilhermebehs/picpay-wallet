@@ -2,6 +2,7 @@ import {
   BadRequestException,
   Controller,
   Get,
+  Inject,
   Param,
   Query,
 } from '@nestjs/common';
@@ -12,6 +13,7 @@ import {
   ApiOperation,
   ApiTags,
 } from '@nestjs/swagger';
+import { Logger } from 'src/contracts';
 import { AccountStatementParamsDto, ClientErrorDto } from 'src/dtos';
 import { AccountStatementQueryParamsDto } from 'src/dtos/account-statement-query-params.dto';
 import { AccountStatementUrlParamsDto } from 'src/dtos/account-statement-url-params.dto';
@@ -23,6 +25,8 @@ import { AccountStatementService } from 'src/services/account-statement.service'
 export class AccountStatementController {
   constructor(
     private readonly accountStatementService: AccountStatementService,
+    @Inject('Logger')
+    private readonly logger: Logger,
   ) {}
 
   @ApiOkResponse({
@@ -62,6 +66,10 @@ export class AccountStatementController {
       offset,
     );
 
+    this.logger.print(
+      `account-statement/${account}/start-date/${startDate}/end-date/${endDate}`,
+      JSON.stringify(accountStamentParamsDto),
+    );
     return await this.accountStatementService.invoke(accountStamentParamsDto);
   }
 }

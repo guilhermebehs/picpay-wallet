@@ -10,9 +10,4 @@ export class ClientErrorDto {
     description: 'error message',
   })
   message: string;
-
-  @ApiProperty({
-    description: 'status code description',
-  })
-  error: string;
 }

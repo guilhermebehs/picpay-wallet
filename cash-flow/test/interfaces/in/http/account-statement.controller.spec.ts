@@ -8,11 +8,13 @@ import { HistoryType } from 'src/enums/history-type.enum';
 import { SortType } from 'src/enums/sort-type.enum';
 import { AccountStatementController } from 'src/interfaces/in/http/account-statement.controller';
 import { AccountStatementService } from 'src/services/account-statement.service';
+import { loggerMock } from 'test/mocks';
 
 describe('AccountStatementController', () => {
   let app: INestApplication;
   let accountStatementController: AccountStatementController;
   let accountStatementService: AccountStatementService;
+  let logger;
   const data = new AccountStatementDto(
     HistoryType.DEPOSIT,
     new Date(),
@@ -28,6 +30,10 @@ describe('AccountStatementController', () => {
           provide: AccountStatementService,
           useValue: { invoke: () => [data] },
         },
+        {
+          provide: 'Logger',
+          useValue: loggerMock,
+        },
       ],
     }).compile();
 
@@ -42,11 +48,13 @@ describe('AccountStatementController', () => {
     accountStatementService = app.get<AccountStatementService>(
       AccountStatementService,
     );
+    logger = app.get('Logger');
   });
 
   describe('invoke()', () => {
     it('should process successfully', async () => {
       const invokeSpy = jest.spyOn(accountStatementService, 'invoke');
+      const printSpy = jest.spyOn(logger, 'print');
       const urlParams: AccountStatementUrlParamsDto = {
         account: 'some id',
         startDate: new Date().toDateString(),
@@ -70,10 +78,16 @@ describe('AccountStatementController', () => {
       const promise = accountStatementController.invoke(urlParams, queryParams);
       await expect(promise).resolves.toEqual([data]);
       expect(invokeSpy).toHaveBeenNthCalledWith(1, params);
+      expect(printSpy).toHaveBeenNthCalledWith(
+        1,
+        `account-statement/${urlParams.account}/start-date/${urlParams.startDate}/end-date/${urlParams.endDate}`,
+        JSON.stringify(params),
+      );
     });
 
     it('should process with default query params successfully', async () => {
       const invokeSpy = jest.spyOn(accountStatementService, 'invoke');
+      const printSpy = jest.spyOn(logger, 'print');
       const urlParams: AccountStatementUrlParamsDto = {
         account: 'some id',
         startDate: new Date().toDateString(),
@@ -91,10 +105,23 @@ describe('AccountStatementController', () => {
         sort: SortType.DESC,
         offset: 0,
       });
+      expect(printSpy).toHaveBeenNthCalledWith(
+        1,
+        `account-statement/${urlParams.account}/start-date/${urlParams.startDate}/end-date/${urlParams.endDate}`,
+        JSON.stringify({
+          account: urlParams.account,
+          startDate: new Date(urlParams.startDate),
+          endDate: new Date(urlParams.endDate),
+          limit: 20,
+          sort: SortType.DESC,
+          offset: 0,
+        }),
+      );
     });
 
     it('should throw when startDate is after endDate', async () => {
       const invokeSpy = jest.spyOn(accountStatementService, 'invoke');
+      const printSpy = jest.spyOn(logger, 'print');
 
       const startDate = new Date();
       startDate.setDate(startDate.getDate() + 1);
@@ -115,6 +142,7 @@ describe('AccountStatementController', () => {
         new BadRequestException("'startDate' should not be after 'endDate'"),
       );
       expect(invokeSpy).toHaveBeenCalledTimes(0);
+      expect(printSpy).toHaveBeenCalledTimes(0);
     });
   });
 });
