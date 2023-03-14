@@ -122,43 +122,7 @@ describe('RabbitMqTransactionReceivedListener', () => {
       );
     });
 
-    it('should handle transaction with type "reversal" successfully', async () => {
-      const getByAccountSpy = jest.spyOn(accountRepository, 'getByAccount');
-      const printSpy = jest.spyOn(logger, 'print');
-      const errorSpy = jest.spyOn(logger, 'error');
-      const updateSpy = jest.spyOn(accountRepository, 'update');
-      const insertSpy = jest.spyOn(historyRepository, 'insert');
-      const publishSpy = jest.spyOn(amqpConnection, 'publish');
 
-      const payload: TransactionReceivedDto = {
-        account: 'some id',
-        amount: 2,
-        type: HistoryType.REVERSAL,
-        ocurredOn: new Date(),
-      };
-      const promise = rabbitMqTransactionReceivedListener.listen(payload);
-      await expect(promise).resolves.toBeUndefined();
-      expect(getByAccountSpy).toHaveBeenNthCalledWith(1, payload.account);
-      expect(insertSpy).toHaveBeenNthCalledWith(1, {
-        account: 'some id',
-        oldAmount: 10,
-        newAmount: 12,
-        type: HistoryType.REVERSAL,
-      });
-      expect(updateSpy).toHaveBeenNthCalledWith(1, {
-        id: 'some id',
-        name: 'some name',
-        amount: 12,
-        isEnabled: true,
-      });
-      expect(publishSpy).toHaveBeenCalledTimes(0);
-      expect(errorSpy).toHaveBeenCalledTimes(0);
-      expect(printSpy).toHaveBeenNthCalledWith(
-        1,
-        `event "transaction-received"`,
-        JSON.stringify(payload),
-      );
-    });
 
     it('should throw when account does not exist', async () => {
       const getByAccountSpy = jest
@@ -173,7 +137,7 @@ describe('RabbitMqTransactionReceivedListener', () => {
       const payload: TransactionReceivedDto = {
         account: '12345',
         amount: 2,
-        type: HistoryType.REVERSAL,
+        type: HistoryType.CANCELLATION,
         ocurredOn: new Date(),
       };
 
@@ -220,7 +184,7 @@ describe('RabbitMqTransactionReceivedListener', () => {
         const payload: TransactionReceivedDto = {
           account: '12345',
           amount: 2,
-          type: HistoryType.REVERSAL,
+          type: HistoryType.CANCELLATION,
           ocurredOn: new Date(),
         };
 

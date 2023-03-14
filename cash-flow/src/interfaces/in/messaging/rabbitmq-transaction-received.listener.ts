@@ -40,11 +40,7 @@ export class RabbitMqTransactionReceivedListener {
 
       if (transactionReceived.type === HistoryType.PURCHASE)
         account.amount -= transactionReceived.amount;
-      else if (
-        [HistoryType.CANCELLATION, HistoryType.REVERSAL].includes(
-          transactionReceived.type,
-        )
-      )
+      else if (transactionReceived.type === HistoryType.CANCELLATION)
         account.amount += transactionReceived.amount;
 
       await this.accountRepository.update(account);
