@@ -9,7 +9,7 @@ import {
   TransactionNotifier,
   TransactionRepository,
 } from 'src/contracts';
-import { CreateTransactionDto, TransactionCreatedResponseDto } from 'src/dtos';
+import { CreateTransactionDto, TransactionCreatedDto } from 'src/dtos';
 import { TransactionType } from 'src/enums/transaction-type.enum';
 
 @Injectable()
@@ -24,7 +24,7 @@ export class CreateTransactionService {
 
   async invoke(
     createTransactionDto: CreateTransactionDto,
-  ): Promise<TransactionCreatedResponseDto> {
+  ): Promise<TransactionCreatedDto> {
     const { accountId, amount } = createTransactionDto;
 
     const account = await this.accountService.getByAccountId(
@@ -52,7 +52,7 @@ export class CreateTransactionService {
       createTransactionDto,
     );
 
-    const response: TransactionCreatedResponseDto = {
+    const response: TransactionCreatedDto = {
       transactionId,
     };
 

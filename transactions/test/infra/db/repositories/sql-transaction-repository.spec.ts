@@ -1,9 +1,15 @@
 import { INestApplication } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
-import { CreateTransactionDto, TransactionDto } from 'src/dtos';
+import {
+  CreateTransactionDto,
+  ListTransactionsParamsDto,
+  TransactionDto,
+} from 'src/dtos';
+import { SortType } from 'src/enums/sort-type.enum';
 import { TransactionStatus } from 'src/enums/transaction-status.enum';
 import { TransactionEntity } from 'src/infra/db/entities/transaction.entity';
 import { SqlTransactionRepository } from 'src/infra/db/repositories/sql-transaction-repository';
+import { Between } from 'typeorm';
 
 describe('SqlTransactionRepository', () => {
   let app: INestApplication;
@@ -26,6 +32,15 @@ describe('SqlTransactionRepository', () => {
             save: () => transaction,
             findOneBy: () => transaction,
             update: jest.fn(),
+            find: () => [
+              new TransactionDto(
+                1,
+                'some id',
+                10,
+                TransactionStatus.APPROVED,
+                new Date(),
+              ),
+            ],
           },
         },
       ],
@@ -76,7 +91,7 @@ describe('SqlTransactionRepository', () => {
         account: 'some id',
         amount: 10,
         status: TransactionStatus.CANCELED,
-        date: new Date()
+        date: new Date(),
       });
     });
   });
@@ -94,6 +109,39 @@ describe('SqlTransactionRepository', () => {
       const promise = sqlTransactionRepository.getById(1);
       await expect(promise).resolves.toEqual(null);
       expect(findOneBySpy).toHaveBeenNthCalledWith(1, { id: 1 });
+    });
+  });
+  describe('find()', () => {
+    it('should return data successfully', async () => {
+      const findSpy = jest.spyOn(repository, 'find');
+      const params = new ListTransactionsParamsDto(
+        'some id',
+        new Date(),
+        new Date(),
+        1,
+        SortType.DESC,
+        0,
+      );
+      const promise = sqlTransactionRepository.list(params);
+      const { account, startDate, endDate, limit, offset, sort } = params;
+
+      await expect(promise).resolves.toEqual([
+        new TransactionDto(
+          1,
+          'some id',
+          10,
+          TransactionStatus.APPROVED,
+          new Date(),
+        ),
+      ]);
+      expect(findSpy).toHaveBeenNthCalledWith(1, {
+        where: { account, date: Between(startDate, endDate) },
+        skip: offset,
+        take: limit,
+        order: {
+          date: sort,
+        },
+      });
     });
   });
 });

@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 
-export class TransactionCreatedResponseDto {
+export class TransactionCreatedDto {
   @ApiProperty({
     description: 'transacion id generated after creation',
   })
