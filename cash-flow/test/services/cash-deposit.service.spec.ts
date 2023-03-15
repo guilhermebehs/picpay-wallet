@@ -50,6 +50,7 @@ describe('CashDepositService', () => {
         name: 'some name',
         amount: 15,
         isEnabled: true,
+        version: 1
       });
       expect(insertSpy).toHaveBeenNthCalledWith(1, {
         account: 'some id',

@@ -1,4 +1,4 @@
-import { Column, Entity, PrimaryColumn } from 'typeorm';
+import { Column, Entity, PrimaryColumn, VersionColumn } from 'typeorm';
 
 @Entity({ name: 'account' })
 export class AccountEntity {
@@ -13,4 +13,7 @@ export class AccountEntity {
 
   @Column({ name: 'is_enabled' })
   isEnabled: boolean;
+
+  @VersionColumn()
+  version?: number;
 }

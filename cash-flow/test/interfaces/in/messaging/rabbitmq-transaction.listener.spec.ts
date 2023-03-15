@@ -75,6 +75,7 @@ describe('RabbitMqTransactionReceivedListener', () => {
         name: 'some name',
         amount: 8,
         isEnabled: true,
+        version: 1,
       });
       expect(publishSpy).toHaveBeenCalledTimes(0);
       expect(errorSpy).toHaveBeenCalledTimes(0);
@@ -112,6 +113,7 @@ describe('RabbitMqTransactionReceivedListener', () => {
         name: 'some name',
         amount: 12,
         isEnabled: true,
+        version: 1,
       });
       expect(publishSpy).toHaveBeenCalledTimes(0);
       expect(errorSpy).toHaveBeenCalledTimes(0);
@@ -121,8 +123,6 @@ describe('RabbitMqTransactionReceivedListener', () => {
         JSON.stringify(payload),
       );
     });
-
-
 
     it('should throw when account does not exist', async () => {
       const getByAccountSpy = jest

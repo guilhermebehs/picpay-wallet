@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { AccountRepository } from 'src/contracts';
 import { AccountDto, CreateAccountDto } from 'src/dtos';
@@ -16,8 +16,8 @@ export class SqlAccountRepository implements AccountRepository {
     const result = await this.accountRepository.findOneBy({ id: account });
     if (!result) return null;
 
-    const { id, amount, name, isEnabled } = result;
-    return new AccountDto(id, name, amount, isEnabled);
+    const { id, amount, name, isEnabled, version } = result;
+    return new AccountDto(id, name, amount, isEnabled, version);
   }
 
   async create(data: CreateAccountDto): Promise<void> {
@@ -27,6 +27,9 @@ export class SqlAccountRepository implements AccountRepository {
   }
 
   async update(data: AccountDto): Promise<void> {
+    const result = await this.accountRepository.findOneBy({ id: data.id });
+    if (result.version !== data.version)
+      throw new InternalServerErrorException('optimistic locking error');
     await this.accountRepository.save(data);
   }
 }

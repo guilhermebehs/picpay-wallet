@@ -1,4 +1,4 @@
-import { INestApplication } from '@nestjs/common';
+import { INestApplication, InternalServerErrorException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { CreateAccountDto } from 'src/dtos';
 import { AccountEntity } from 'src/infra/db/entities/account.entity';
@@ -13,6 +13,7 @@ describe('SqlAccountRepository', () => {
     name: 'some name',
     amount: 10,
     isEnabled: true,
+    version: 1,
   };
 
   beforeAll(async () => {
@@ -42,13 +43,14 @@ describe('SqlAccountRepository', () => {
         name: 'some name',
         amount: 10,
         isEnabled: true,
+        version: 1,
       });
       expect(findOneBySpy).toHaveBeenNthCalledWith(1, { id: 'some id' });
     });
     it('should return null when repository returns null', async () => {
       const findOneBySpy = jest
         .spyOn(repository, 'findOneBy')
-        .mockResolvedValue(null);
+        .mockResolvedValueOnce(null);
       const promise = sqlAccountRepository.getByAccount('some id');
       await expect(promise).resolves.toBeNull();
       expect(findOneBySpy).toHaveBeenNthCalledWith(1, { id: 'some id' });
@@ -74,6 +76,7 @@ describe('SqlAccountRepository', () => {
   describe('update()', () => {
     it('should execute successfully', async () => {
       const saveSpy = jest.spyOn(repository, 'save');
+      const findOneBySpy = jest.spyOn(repository, 'findOneBy');
       const promise = sqlAccountRepository.update(account);
       await expect(promise).resolves.toBeUndefined();
       expect(saveSpy).toHaveBeenNthCalledWith(1, {
@@ -81,7 +84,28 @@ describe('SqlAccountRepository', () => {
         name: 'some name',
         amount: 10,
         isEnabled: true,
+        version: 1,
       });
+      expect(findOneBySpy).toHaveBeenNthCalledWith(1, { id: 'some id' });
+    });
+
+    it('should throw when occurs a concurrency problem', async () => {
+      const saveSpy = jest.spyOn(repository, 'save');
+      const findOneBySpy = jest
+        .spyOn(repository, 'findOneBy')
+        .mockResolvedValueOnce({
+          id: 'some id',
+          name: 'some name',
+          amount: 10,
+          isEnabled: true,
+          version: 2,
+        });
+      const promise = sqlAccountRepository.update(account);
+      await expect(promise).rejects.toEqual(
+        new InternalServerErrorException('optimistic locking error'),
+      );
+      expect(saveSpy).toHaveBeenCalledTimes(0);
+      expect(findOneBySpy).toHaveBeenNthCalledWith(1, { id: 'some id' });
     });
   });
 });

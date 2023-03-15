@@ -50,6 +50,7 @@ describe('CashWithdrawService', () => {
         amount: 8,
         name: 'some name',
         isEnabled: true,
+        version: 1
       });
       expect(insertSpy).toHaveBeenNthCalledWith(1, {
         account: 'some id',
