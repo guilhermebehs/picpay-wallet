@@ -6,7 +6,7 @@ describe('ConsoleLogger', () => {
   let app: INestApplication;
   let consoleLogger: ConsoleLogger;
 
-  beforeEach(async () => {
+  beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
       providers: [ConsoleLogger],
     }).compile();

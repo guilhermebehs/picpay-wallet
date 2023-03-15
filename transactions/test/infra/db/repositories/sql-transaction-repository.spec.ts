@@ -1,6 +1,6 @@
 import { INestApplication } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
-import { CreateTransactionDto } from 'src/dtos';
+import { CreateTransactionDto, TransactionDto } from 'src/dtos';
 import { TransactionStatus } from 'src/enums/transaction-status.enum';
 import { TransactionEntity } from 'src/infra/db/entities/transaction.entity';
 import { SqlTransactionRepository } from 'src/infra/db/repositories/sql-transaction-repository';
@@ -16,16 +16,22 @@ describe('SqlTransactionRepository', () => {
     status: TransactionStatus.APPROVED,
   };
 
-  beforeEach(async () => {
+  beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
       providers: [
         SqlTransactionRepository,
         {
           provide: 'TransactionEntityRepository',
-          useValue: { save: () => transaction, findOneBy: () => transaction },
+          useValue: {
+            save: () => transaction,
+            findOneBy: () => transaction,
+            update: jest.fn(),
+          },
         },
       ],
     }).compile();
+
+    jest.useFakeTimers().setSystemTime(new Date());
 
     app = moduleFixture.createNestApplication();
     await app.init();
@@ -37,7 +43,7 @@ describe('SqlTransactionRepository', () => {
   });
 
   describe('create()', () => {
-    it('should execute successfully', async () => {
+    it('should create successfully', async () => {
       const saveSpy = jest.spyOn(repository, 'save');
       const promise = sqlTransactionRepository.create(
         new CreateTransactionDto(10, 'some id'),
@@ -47,7 +53,30 @@ describe('SqlTransactionRepository', () => {
         account: 'some id',
         accountId: 'some id',
         amount: 10,
-        status: 'approved',
+        status: TransactionStatus.APPROVED,
+      });
+    });
+  });
+  describe('update()', () => {
+    it('should update successfully', async () => {
+      const saveSpy = jest.spyOn(repository, 'save');
+
+      const promise = sqlTransactionRepository.update(
+        new TransactionDto(
+          1,
+          'some id',
+          10,
+          TransactionStatus.CANCELED,
+          new Date(),
+        ),
+      );
+      await expect(promise).resolves.toBeUndefined();
+      expect(saveSpy).toHaveBeenNthCalledWith(1, {
+        id: 1,
+        account: 'some id',
+        amount: 10,
+        status: TransactionStatus.CANCELED,
+        date: new Date()
       });
     });
   });

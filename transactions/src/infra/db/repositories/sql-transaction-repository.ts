@@ -31,4 +31,8 @@ export class SqlTransactionRepository implements TransactionRepository {
     };
     return (await this.transactionRepository.save(entity)).id;
   }
+
+  async update(transactionDto: TransactionDto): Promise<void> {
+    await this.transactionRepository.save(transactionDto);
+  }
 }

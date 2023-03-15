@@ -5,4 +5,16 @@ export class TransactionReceivedDto {
   amount: number;
   type: TransactionType;
   ocurredOn: Date;
+
+  constructor(
+    account: string,
+    amount: number,
+    type: TransactionType,
+    ocurredOn: Date,
+  ) {
+    this.account = account;
+    this.amount = amount;
+    this.type = type;
+    this.ocurredOn = ocurredOn;
+  }
 }

@@ -1,6 +1,6 @@
 import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
-import { AppModule } from './app.module';
+import { AppModule } from './modules/app.module';
 import { config } from 'dotenv';
 import { HttpExceptionFilter } from './infra/filters/http-exception.filter';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
@@ -13,10 +13,10 @@ async function bootstrap() {
   app.useGlobalFilters(new HttpExceptionFilter());
 
   const swaggerConfig = new DocumentBuilder()
-    .setTitle('Cash Flow')
-    .setDescription('Cash flow API description')
+    .setTitle('Transactions')
+    .setDescription('Transactions API description')
     .setVersion('1.0')
-    .addTag('cash-flow')
+    .addTag('transactions')
     .build();
   const document = SwaggerModule.createDocument(app, swaggerConfig);
   SwaggerModule.setup('docs', app, document);

@@ -11,7 +11,7 @@ describe('CreateTransactionController', () => {
   let createTransactionService: CreateTransactionService;
   let createTransactionController: CreateTransactionController;
 
-  beforeEach(async () => {
+  beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
       controllers: [CreateTransactionController],
       providers: [

@@ -20,7 +20,7 @@ describe('CreateTransactionService', () => {
   let transactionRepository;
   let createTransactionService: CreateTransactionService;
 
-  beforeEach(async () => {
+  beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
       providers: [
         CreateTransactionService,
