@@ -11,7 +11,7 @@ describe('CashWithdrawController', () => {
   let cashWithdrawService: CashWithdrawService;
   let logger;
 
-  beforeEach(async () => {
+  beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
       controllers: [CashWithdrawController],
       providers: [

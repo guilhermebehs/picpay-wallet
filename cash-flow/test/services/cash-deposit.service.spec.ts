@@ -16,7 +16,7 @@ describe('CashDepositService', () => {
   let historyRepository;
   let cashDepositService: CashDepositService;
 
-  beforeEach(async () => {
+  beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
       providers: [
         CashDepositService,

@@ -8,7 +8,7 @@ describe('BalanceService', () => {
   let balanceService: BalanceService;
   let accountRepository;
 
-  beforeEach(async () => {
+  beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
       providers: [
         BalanceService,

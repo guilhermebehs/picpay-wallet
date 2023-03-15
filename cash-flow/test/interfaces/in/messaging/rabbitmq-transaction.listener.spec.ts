@@ -18,7 +18,7 @@ describe('RabbitMqTransactionReceivedListener', () => {
   let amqpConnection;
   let logger;
 
-  beforeEach(async () => {
+  beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
       providers: [
         RabbitMqTransactionReceivedListener,

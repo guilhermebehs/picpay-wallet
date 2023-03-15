@@ -28,7 +28,7 @@ describe('SqlAccountStatementRepository', () => {
     0,
   );
 
-  beforeEach(async () => {
+  beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
       providers: [
         SqlAccountStatementRepository,

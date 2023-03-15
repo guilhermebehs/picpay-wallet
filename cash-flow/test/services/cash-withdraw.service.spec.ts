@@ -16,7 +16,7 @@ describe('CashWithdrawService', () => {
   let historyRepository;
   let cashWithdrawService: CashWithdrawService;
 
-  beforeEach(async () => {
+  beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
       providers: [
         CashWithdrawService,

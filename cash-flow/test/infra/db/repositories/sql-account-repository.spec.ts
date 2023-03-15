@@ -15,7 +15,7 @@ describe('SqlAccountRepository', () => {
     isEnabled: true,
   };
 
-  beforeEach(async () => {
+  beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
       providers: [
         SqlAccountRepository,

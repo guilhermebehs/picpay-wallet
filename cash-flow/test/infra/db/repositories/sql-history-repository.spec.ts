@@ -9,7 +9,7 @@ describe('SqlHistoryRepository', () => {
   let sqlHistoryRepository: SqlHistoryRepository;
   let repository;
 
-  beforeEach(async () => {
+  beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
       providers: [
         SqlHistoryRepository,

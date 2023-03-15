@@ -14,7 +14,7 @@ describe('BalanceController', () => {
     amount: 100,
   };
 
-  beforeEach(async () => {
+  beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
       controllers: [BalanceController],
       providers: [

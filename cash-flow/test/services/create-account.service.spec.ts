@@ -10,7 +10,7 @@ describe('CreateAccountService', () => {
   let accountRepository;
   let createAccountService: CreateAccountService;
 
-  beforeEach(async () => {
+  beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
       providers: [
         CreateAccountService,
