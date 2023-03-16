@@ -66,20 +66,25 @@ Para o Cash Flow:
 ### Teste integrados
 Os testes integrados exigem um .env na raíz de cada um dos serviços. Use o .env-example de cada serviço para isso. É importante tambem ressaltar que os testes integrados do Transactions exigem que o Cash Flow esteja operante. Para executar os testes integrados, estando na raíz do projeto, execute os seguintes passos no terminal:
 
-Para o Cash Flow:
+Rodar as migrations:
  * `docker-compose up -d rabbitmq db`
  * `cd cash-flow`
  * `npm ci`
+ * `npm run typeorm:run-migration`
+ * `cd ..`
+ * `cd transactions`
+ * `npm ci`
+ * `npm run typeorm:run-migration` 
+ 
+Para o Cash Flow:
+ * `cd cash-flow`
  * `npm run test:e2e`
 
  Para o Transactions:
- * `docker-compose up -d rabbitmq db`
  * `cd cash-flow`
- * `npm ci`
  * `npm run start:dev`
  * `cd..`
  * `cd transactions` 
- * `npm ci`
  * `npm run test:e2e`
 
 ## Overview Técnico
