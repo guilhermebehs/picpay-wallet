@@ -11,7 +11,7 @@ describe('AccountStatementService', () => {
   let accountStatementService: AccountStatementService;
   let accountStatementRepository;
 
-  beforeEach(async () => {
+  beforeAll(async () => {
     jest.useFakeTimers().setSystemTime(new Date());
 
     const moduleFixture: TestingModule = await Test.createTestingModule({

@@ -1,38 +1,18 @@
-import { MigrationInterface, QueryRunner, Table } from 'typeorm';
+import { MigrationInterface, QueryRunner } from 'typeorm';
 
 export class createTableAccount1678628277722 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.createTable(
-      new Table({
-        name: 'account',
-        columns: [
-          {
-            name: 'id',
-            type: 'varchar(10)',
-            isPrimary: true,
-            isNullable: false,
-          },
-          {
-            name: 'name',
-            type: 'varchar(50)',
-            isNullable: false,
-          },
-          {
-            name: 'amount',
-            type: 'decimal(10, 2)',
-            isNullable: false,
-          },
-          {
-            name: 'is_enabled',
-            type: 'bool',
-            isNullable: false,
-          },
-        ],
-      }),
+    await queryRunner.query(
+      `CREATE TABLE account (
+        id varchar(10) NOT NULL, 
+        name varchar(50) NOT NULL, 
+        amount decimal(10, 2) NOT NULL, 
+        is_enabled bool NOT NULL, 
+        PRIMARY KEY (id))`,
     );
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.dropTable('account');
+    await queryRunner.query('DROP TABLE account');
   }
 }

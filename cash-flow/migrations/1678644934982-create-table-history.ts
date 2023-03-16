@@ -1,76 +1,32 @@
-import {
-  MigrationInterface,
-  QueryRunner,
-  Table,
-  TableForeignKey,
-  TableIndex,
-} from 'typeorm';
+import { MigrationInterface, QueryRunner } from 'typeorm';
 
 export class createTableHistory1678644934982 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.createTable(
-      new Table({
-        name: 'history',
-        columns: [
-          {
-            name: 'id',
-            type: 'bigint',
-            isPrimary: true,
-            isGenerated: true,
-            generationStrategy: 'increment',
-            isNullable: false,
-          },
-          {
-            name: 'account',
-            type: 'varchar(10)',
-            isNullable: false,
-          },
-          {
-            name: 'old-amount',
-            type: 'decimal(10, 2)',
-            isNullable: false,
-          },
-          {
-            name: 'new-amount',
-            type: 'decimal(10, 2)',
-            isNullable: false,
-          },
-          {
-            name: 'type',
-            type: 'varchar(20)',
-            isNullable: false,
-          },
-          {
-            name: 'date',
-            type: 'timestamp',
-            isNullable: false,
-            default: 'now()',
-          },
-        ],
-      }),
+    await queryRunner.query(
+      `CREATE TABLE history (
+        id bigint NOT NULL AUTO_INCREMENT, 
+        account varchar(10) NOT NULL, 
+        \`old-amount\` decimal(10, 2) NOT NULL, 
+        \`new-amount\` decimal(10, 2) NOT NULL, 
+        type varchar(20) NOT NULL, 
+        date timestamp NOT NULL DEFAULT now(), 
+        PRIMARY KEY (id))`,
     );
-    await queryRunner.createForeignKey(
-      'history',
-      new TableForeignKey({
-        name: 'history_account_fk',
-        columnNames: ['account'],
-        referencedTableName: 'account',
-        referencedColumnNames: ['id'],
-      }),
+    await queryRunner.query(
+      `ALTER TABLE history
+       ADD CONSTRAINT history_account_fk FOREIGN KEY (account) REFERENCES account(id)`,
     );
 
-    await queryRunner.createIndex(
-      'history',
-      new TableIndex({
-        name: 'history_account_date_idx',
-        columnNames: ['account', 'date'],
-      }),
+    await queryRunner.query(
+      `CREATE INDEX history_account_date_idx ON history (account, date)`,
     );
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.dropIndex('history', 'history_account_date_idx');
-    await queryRunner.dropForeignKey('history', 'history_account_fk');
-    await queryRunner.dropTable('history');
+    await queryRunner.query(
+      'ALTER TABLE history DROP FOREIGN KEY history_account_fk',
+    );
+    await queryRunner.query('DROP INDEX history_account_date_idx ON history');
+    await queryRunner.query('DROP TABLE history');
   }
 }

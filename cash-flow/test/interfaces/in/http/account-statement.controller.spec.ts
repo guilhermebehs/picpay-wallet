@@ -22,7 +22,7 @@ describe('AccountStatementController', () => {
     100,
   );
 
-  beforeEach(async () => {
+  beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
       controllers: [AccountStatementController],
       providers: [

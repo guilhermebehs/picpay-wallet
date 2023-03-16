@@ -8,11 +8,7 @@ describe('BalanceService', () => {
   let balanceService: BalanceService;
   let accountRepository;
 
-  const data = {
-    amount: 100,
-  };
-
-  beforeEach(async () => {
+  beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
       providers: [
         BalanceService,
@@ -31,7 +27,7 @@ describe('BalanceService', () => {
     it('should retrieve balance successfully', async () => {
       const getByAccountSpy = jest.spyOn(accountRepository, 'getByAccount');
       const promise = balanceService.invoke('12345');
-      await expect(promise).resolves.toEqual({ amount: 10 });
+      await expect(promise).resolves.toEqual({ amount: 10, isEnabled: true });
       expect(getByAccountSpy).toHaveBeenNthCalledWith(1, '12345');
     });
     it('should throw when account does not exist', async () => {

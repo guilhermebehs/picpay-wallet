@@ -1,8 +1,14 @@
 version: '3.1'
 
+
+networks:
+  picpay-wallet-network:
+    driver: bridge
+
 services:
 
   db:
+    container_name: db
     image: mysql
     restart: always
     ports:
@@ -11,11 +17,59 @@ services:
       MYSQL_ROOT_PASSWORD: 150158
       MYSQL_DATABASE: picpay-wallet
       MYSQL_USER: picpay
+      TZ: America/Sao_Paulo
+    networks:
+      - picpay-wallet-network 
+
   rabbitmq:
     container_name: rabbitmq
     image: rabbitmq:3.8-management-alpine
     hostname: rabbitmq
     restart: always
+    networks:
+      - picpay-wallet-network
     ports:
       - 15672:15672
-      - 5672:5672    
+      - 5672:5672
+
+  cash-flow:
+    container_name: cash-flow
+    networks:
+      - picpay-wallet-network
+    depends_on:
+      - rabbitmq
+      - db
+    restart: always
+    build:
+      context: ./cash-flow
+    environment:
+      - PORT=${CASH_FLOW_PORT}
+      - RABBIT_URL=${RABBIT_URL}
+      - DB_HOST=${DB_HOST}
+      - DB_PORT=${DB_PORT}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_NAME=${DB_NAME}
+    ports:
+      - ${CASH_FLOW_PORT}:${CASH_FLOW_PORT}    
+
+  transactions:
+    container_name: transactions
+    networks:
+      - picpay-wallet-network
+    depends_on:
+      - cash-flow
+    restart: always
+    build:
+      context: ./transactions
+    environment:
+      - PORT=${TRANSACTIONS_PORT}
+      - RABBIT_URL=${RABBIT_URL}
+      - DB_HOST=${DB_HOST}
+      - DB_PORT=${DB_PORT}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_NAME=${DB_NAME}
+      - CASH_FLOW_URL=${CASH_FLOW_URL}
+    ports:
+      - ${TRANSACTIONS_PORT}:${TRANSACTIONS_PORT}       

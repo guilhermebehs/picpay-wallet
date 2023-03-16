@@ -16,7 +16,7 @@ describe('CashWithdrawService', () => {
   let historyRepository;
   let cashWithdrawService: CashWithdrawService;
 
-  beforeEach(async () => {
+  beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
       providers: [
         CashWithdrawService,
@@ -50,6 +50,7 @@ describe('CashWithdrawService', () => {
         amount: 8,
         name: 'some name',
         isEnabled: true,
+        version: 1
       });
       expect(insertSpy).toHaveBeenNthCalledWith(1, {
         account: 'some id',

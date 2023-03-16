@@ -13,6 +13,6 @@ export class BalanceService {
     const account = await this.accountRepository.getByAccount(accountId);
     if (!account) throw new NotFoundException('Account does not exist');
 
-    return { amount: account.amount };
+    return { amount: account.amount, isEnabled: account.isEnabled };
   }
 }
