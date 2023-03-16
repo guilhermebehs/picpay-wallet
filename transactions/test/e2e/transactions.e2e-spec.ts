@@ -4,10 +4,9 @@ import { AppModule } from 'src/modules/app.module';
 import request from 'supertest';
 import { DataSource, MoreThan } from 'typeorm';
 import { HttpExceptionFilter } from 'src/infra/filters/http-exception.filter';
-import { HistoryEntity } from 'src/infra/db/entities/history.entity';
-import { AccountEntity } from 'src/infra/db/entities/account.entity';
+import { TransactionEntity } from 'src/infra/db/entities/transaction.entity';
 
-describe('Account (e2e)', () => {
+describe('Transactions (e2e)', () => {
   let app: INestApplication;
   let repository: DataSource;
 
@@ -27,41 +26,44 @@ describe('Account (e2e)', () => {
   });
 
   beforeEach(async () => {
-    await repository.createQueryRunner().query('DELETE FROM transaction');
-    await repository.getRepository(HistoryEntity).delete({ id: MoreThan(0) });
-    await repository.getRepository(AccountEntity).delete({ id: '12345' });
+    await repository
+      .getRepository(TransactionEntity)
+      .delete({ id: MoreThan(0) });
+
+    await repository.createQueryRunner().query('DELETE FROM history');
+    await repository.createQueryRunner().query('DELETE FROM account');
+    await repository
+      .createQueryRunner()
+      .query("INSERT INTO account values ('12345', 'Guilherme', 10, 1, 1)");
   });
 
   afterAll(async () => {
-    await repository.createQueryRunner().query('DELETE FROM transaction');
-    await repository.getRepository(HistoryEntity).delete({ id: MoreThan(0) });
-    await repository.getRepository(AccountEntity).delete({ id: '12345' });
-
     await app.close();
   });
 
-  describe('POST /v1/cash-flow/account', () => {
+  describe('POST /v1/transactions', () => {
     it('should execute successfully', async () => {
       const { body, statusCode } = await request(app.getHttpServer())
-        .post('/v1/cash-flow/account')
-        .send({ accountId: '12345', name: 'Guilherme' });
+        .post('/v1/transactions')
+        .send({ accountId: '12345', amount: 10 });
 
       expect(statusCode).toEqual(201);
-      expect(body).toEqual({});
+      expect(!isNaN(body.transactionId)).toBeTruthy();
     });
     it('should throw when body is empty', async () => {
       const { body, statusCode } = await request(app.getHttpServer())
-        .post('/v1/cash-flow/account')
+        .post('/v1/transactions')
         .send({});
 
       expect(statusCode).toEqual(400);
       expect(body.statusCode).toEqual(400);
 
       const expectedErrorMessages = [
+        'amount must not be greater than 1000',
+        'amount must not be less than 1',
+        'amount should not be empty',
         'accountId must be longer than or equal to 5 characters',
         'accountId should not be empty',
-        'name must be longer than or equal to 5 characters',
-        'name should not be empty',
       ];
 
       body.message.sort();
@@ -70,19 +72,14 @@ describe('Account (e2e)', () => {
       expect(body.message).toEqual(expectedErrorMessages);
     });
 
-    it('should throw when account already exists', async () => {
-      await repository
-        .createQueryRunner()
-        .query("INSERT INTO account values('12345', 'Guilherme', 0, 1, 1)");
-
+    it('should throw when account does not exist', async () => {
       const { body, statusCode } = await request(app.getHttpServer())
-        .post('/v1/cash-flow/account')
-        .send({ accountId: '12345', name: 'Guilherme' });
+        .post('/v1/transactions')
+        .send({ accountId: '123456', amount: 10 });
 
       expect(statusCode).toEqual(400);
       expect(body.statusCode).toEqual(400);
-
-      expect(body.message).toEqual('Account already exists');
+      expect(body.message).toEqual('Account does not exist');
     });
   });
 });

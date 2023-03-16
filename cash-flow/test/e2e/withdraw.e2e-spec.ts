@@ -7,7 +7,7 @@ import { HttpExceptionFilter } from 'src/infra/filters/http-exception.filter';
 import { HistoryEntity } from 'src/infra/db/entities/history.entity';
 import { AccountEntity } from 'src/infra/db/entities/account.entity';
 
-describe('Account (e2e)', () => {
+describe('Withdraw (e2e)', () => {
   let app: INestApplication;
   let repository: DataSource;
 
@@ -30,6 +30,14 @@ describe('Account (e2e)', () => {
     await repository.createQueryRunner().query('DELETE FROM transaction');
     await repository.getRepository(HistoryEntity).delete({ id: MoreThan(0) });
     await repository.getRepository(AccountEntity).delete({ id: '12345' });
+
+    await repository.getRepository(AccountEntity).insert({
+      id: '12345',
+      amount: 10,
+      isEnabled: true,
+      name: 'Guilherme',
+      version: 1,
+    });
   });
 
   afterAll(async () => {
@@ -40,18 +48,19 @@ describe('Account (e2e)', () => {
     await app.close();
   });
 
-  describe('POST /v1/cash-flow/account', () => {
+  describe('POST /v1/cash-flow/withdraw', () => {
     it('should execute successfully', async () => {
       const { body, statusCode } = await request(app.getHttpServer())
-        .post('/v1/cash-flow/account')
-        .send({ accountId: '12345', name: 'Guilherme' });
+        .post('/v1/cash-flow/withdraw')
+        .send({ accountId: '12345', amount: 5 });
 
       expect(statusCode).toEqual(201);
       expect(body).toEqual({});
     });
+
     it('should throw when body is empty', async () => {
       const { body, statusCode } = await request(app.getHttpServer())
-        .post('/v1/cash-flow/account')
+        .post('/v1/cash-flow/withdraw')
         .send({});
 
       expect(statusCode).toEqual(400);
@@ -60,8 +69,9 @@ describe('Account (e2e)', () => {
       const expectedErrorMessages = [
         'accountId must be longer than or equal to 5 characters',
         'accountId should not be empty',
-        'name must be longer than or equal to 5 characters',
-        'name should not be empty',
+        'amount must not be greater than 1000',
+        'amount must not be less than 1',
+        'amount should not be empty',
       ];
 
       body.message.sort();
@@ -70,19 +80,44 @@ describe('Account (e2e)', () => {
       expect(body.message).toEqual(expectedErrorMessages);
     });
 
-    it('should throw when account already exists', async () => {
-      await repository
-        .createQueryRunner()
-        .query("INSERT INTO account values('12345', 'Guilherme', 0, 1, 1)");
+    it('should throw when account does not exist', async () => {
+      await repository.getRepository(AccountEntity).delete({ id: '12345' });
 
       const { body, statusCode } = await request(app.getHttpServer())
-        .post('/v1/cash-flow/account')
-        .send({ accountId: '12345', name: 'Guilherme' });
+        .post('/v1/cash-flow/withdraw')
+        .send({ accountId: '12345', amount: 5 });
 
       expect(statusCode).toEqual(400);
       expect(body.statusCode).toEqual(400);
 
-      expect(body.message).toEqual('Account already exists');
+      expect(body.message).toEqual('Account does not exist');
+    });
+
+    it('should throw when account is not enabled', async () => {
+      await repository
+        .getRepository(AccountEntity)
+        .update({ id: '12345' }, { isEnabled: false });
+
+      const { body, statusCode } = await request(app.getHttpServer())
+        .post('/v1/cash-flow/withdraw')
+        .send({ accountId: '12345', amount: 5 });
+
+      expect(statusCode).toEqual(422);
+      expect(body.statusCode).toEqual(422);
+
+      expect(body.message).toEqual('Account is not enabled');
+    });
+
+    it('should throw when account does not have enough money', async () => {
+
+      const { body, statusCode } = await request(app.getHttpServer())
+        .post('/v1/cash-flow/withdraw')
+        .send({ accountId: '12345', amount: 11 });
+
+      expect(statusCode).toEqual(422);
+      expect(body.statusCode).toEqual(422);
+
+      expect(body.message).toEqual('Account does not have enough money');
     });
   });
 });
