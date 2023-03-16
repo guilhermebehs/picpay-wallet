@@ -47,7 +47,7 @@ Após essa configuração, basta executar `docker-compose --env-file .env up -d`
 
 ## Como rodar os testes
 
-O projeto possui teste unitários e alguns testes integrados.
+O projeto possui testes unitários e alguns testes integrados.
 
 ### Testes unitários
 
