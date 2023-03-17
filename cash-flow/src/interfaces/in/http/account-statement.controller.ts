@@ -1,10 +1,12 @@
 import {
   BadRequestException,
+  CacheInterceptor,
   Controller,
   Get,
   Inject,
   Param,
   Query,
+  UseInterceptors,
 } from '@nestjs/common';
 import {
   ApiBadRequestResponse,
@@ -22,6 +24,7 @@ import { AccountStatementService } from 'src/services/account-statement.service'
 
 @ApiTags('cash-flow')
 @Controller('v1/cash-flow/account-statement')
+@UseInterceptors(CacheInterceptor)
 export class AccountStatementController {
   constructor(
     private readonly accountStatementService: AccountStatementService,

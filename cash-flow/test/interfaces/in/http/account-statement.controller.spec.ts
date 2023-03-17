@@ -34,6 +34,10 @@ describe('AccountStatementController', () => {
           provide: 'Logger',
           useValue: loggerMock,
         },
+        {
+          provide: 'CACHE_MANAGER',
+          useValue: {},
+        },
       ],
     }).compile();
 
