@@ -1,10 +1,12 @@
 import {
   BadRequestException,
+  CacheInterceptor,
   Controller,
   Get,
   Inject,
   Param,
   Query,
+  UseInterceptors,
 } from '@nestjs/common';
 import {
   ApiBadRequestResponse,
@@ -25,6 +27,7 @@ import { ListTransactionsService } from 'src/services/list-transactions.service'
 
 @ApiTags('transactions')
 @Controller('v1/transactions')
+@UseInterceptors(CacheInterceptor)
 export class ListTransactionsController {
   constructor(
     private readonly listTransactionsService: ListTransactionsService,
@@ -49,6 +52,7 @@ export class ListTransactionsController {
     @Param() urlParams: ListTransactionsUrlParamsDto,
     @Query() queryParams: ListTransactionsQueryParamsDto,
   ) {
+
     const { account, startDate, endDate } = urlParams;
     const { limit, sort, offset } = queryParams;
 
